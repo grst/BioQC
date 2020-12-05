@@ -38,6 +38,9 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../articles/BioQC.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -62,9 +65,6 @@
     <li>
       <a href="../articles/bioqc-wmw-test-performance.html">Comparing the Wilcoxon-Mann-Whitney to alternative statistical tests</a>
     </li>
-    <li>
-      <a href="../articles/bioqc.html">BioQC-kidney: The kidney expression example</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -78,7 +78,7 @@
 
       
 
-      </header><script src="bioqc_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="BioQC_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>BioQC-kidney: The kidney expression example</h1>
@@ -86,7 +86,7 @@
             <h4 class="date">2020-12-05</h4>
       
       
-      <div class="hidden name"><code>bioqc.Rmd</code></div>
+      <div class="hidden name"><code>BioQC.Rmd</code></div>
 
     </div>
 
@@ -111,58 +111,42 @@
 <code class="sourceCode R"><span class="va">file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata/kidney_example.rda"</span>, package<span class="op">=</span><span class="st">"BioQC"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span></code></pre></div>
-<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
-## assayData: 34719 features, 25 samples 
-##   element names: exprs 
-## protocolData: none
-## phenoData
-##   sampleNames: FSP5.FVB.NJ.Sham.Placebo FS2.FVB.NJ.Sham.Control ...
-##     FN6.FVB.NJ.Nephrectomy.Control (25 total)
-##   varLabels: Experiment.name INDIVIDUALNAME ... Elastase (7 total)
-##   varMetadata: labelDescription
-## featureData
-##   featureNames: 1415670_at 1415671_at ... AFFX-TransRecMur/X57349_M_at
-##     (34719 total)
-##   fvarLabels: GeneID GeneSymbol OrigGeneID OrigGeneSymbol
-##   fvarMetadata: labelDescription
-## experimentData: use 'experimentData(object)'
-## Annotation:</code></pre>
 <p>The dataset contains expression of 34719 genes in 25 samples. The expression profile was normalized with RMA normalization. The signals were also <code>log2</code>-transformed; however, this step does not affect the result of <em>BioQC</em> since it is essentially a non-parametric statistical test.</p>
 </div>
 <div id="running-bioqc" class="section level2">
 <h2 class="hasAnchor">
 <a href="#running-bioqc" class="anchor"></a>Running BioQC</h2>
 <p>Next we run the core function of the <em>BioQC</em> package, <code>wmwTest</code>, to perform the analysis.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="va">bioqcRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/wmwTest.html">wmwTest</a></span><span class="op">(</span><span class="va">eset</span>, <span class="va">gmt</span>,
                                  valType<span class="op">=</span><span class="st">"p.greater"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.839   0.068   0.907</code></pre>
+##   0.751   0.032   0.783</code></pre>
 <p>The function returns <em>one-sided</em> <span class="math inline">\(p\)</span>-values of Wilcoxon-Mann-Whitney test.</p>
 <p>For better visualization we * filter the p-value matrix (a sensible cutoff depends on the actual dataset and the expected signatures); * transform the p-values using <span class="math inline">\(|\log_{10} p|\)</span>. We refer to thse transformed values as <em>BioQC score</em>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bioqcResFil</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/filterPmat.html">filterPmat</a></span><span class="op">(</span><span class="va">bioqcRes</span>, <span class="fl">1E-6</span><span class="op">)</span>
 <span class="va">bioqcAbsLogRes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/absLog10p.html">absLog10p</a></span><span class="op">(</span><span class="va">bioqcResFil</span><span class="op">)</span></code></pre></div>
 <p>We inspect the BioQC scores by visualizing them as Heatmap. By closer examination we find that the expression of pancreas and adipose specific genes is significantly enriched in samples 23-25:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/stats/heatmap.html">heatmap</a></span><span class="op">(</span><span class="va">bioqcAbsLogRes</span>, Colv<span class="op">=</span><span class="cn">NA</span>, Rowv<span class="op">=</span><span class="cn">TRUE</span>,
         cexRow<span class="op">=</span><span class="fl">0.85</span>, scale<span class="op">=</span><span class="st">"row"</span>,
         col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span><span class="op">(</span><span class="fl">7</span>, <span class="st">"RdBu"</span><span class="op">)</span><span class="op">)</span>,
         labCol<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">bioqcAbsLogRes</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="bioqc_files/figure-html/heatmap-1.png" alt="BioQC scores (defined as abs(log10(p))) of the samples visualized in heatmap. Red and blue indicate high and low scores respectively." width="768" style="display:block; margin: auto"><p class="caption">
+<img src="BioQC_files/figure-html/heatmap-1.png" alt="BioQC scores (defined as abs(log10(p))) of the samples visualized in heatmap. Red and blue indicate high and low scores respectively." width="768" style="display:block; margin: auto"><p class="caption">
 BioQC scores (defined as abs(log10(p))) of the samples visualized in heatmap. Red and blue indicate high and low scores respectively.
 </p>
 </div>
 <p>Visual inspection reveals that there might be contaminations in samples 23-25, potentially by pancreas and adipose tissue.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">filRes</span> <span class="op">&lt;-</span> <span class="va">bioqcAbsLogRes</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Kidney_NGS_RNASEQATLAS_0.6_3"</span>,
                            <span class="st">"Pancreas_Islets_NR_0.7_3"</span><span class="op">)</span>,<span class="op">]</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html">matplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">filRes</span><span class="op">)</span>, pch<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"K"</span>, <span class="st">"P"</span><span class="op">)</span>, type<span class="op">=</span><span class="st">"b"</span>, lty<span class="op">=</span><span class="fl">1L</span>,
         ylab<span class="op">=</span><span class="st">"BioQC score"</span>, xlab<span class="op">=</span><span class="st">"Sample index"</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="bioqc_files/figure-html/vis_bioqc-1.png" alt="BioQC scores (defined as abs(log10(p))) of the samples. K and P represent kidney and pancreas signature scores respectively." width="768" style="display:block; margin: auto"><p class="caption">
+<img src="BioQC_files/figure-html/vis_bioqc-1.png" alt="BioQC scores (defined as abs(log10(p))) of the samples. K and P represent kidney and pancreas signature scores respectively." width="768" style="display:block; margin: auto"><p class="caption">
 BioQC scores (defined as abs(log10(p))) of the samples. K and P represent kidney and pancreas signature scores respectively.
 </p>
 </div>
@@ -172,7 +156,7 @@ BioQC scores (defined as abs(log10(p))) of the samples. K and P represent kidney
 <a href="#validation-with-quantitative-rt-pcr" class="anchor"></a>Validation with quantitative RT-PCR</h2>
 <p>To confirm the hypothesis generated by <em>BioQC</em>, we performed qRT-PCR experiments to test two pancreas-specific genes’ expression in the same set of samples. Note that the two genes (amylase and elastase) are not included in the signature set provided by BioQC.</p>
 <p>The results are shown in the figure below. It seems likely that sample 23-25 are contaminated by nearby pancreas tissues when the kidney was dissected. Potential contamination by adipose tissues remains to be tested.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">amylase</span> <span class="op">&lt;-</span> <span class="va">eset</span><span class="op">$</span><span class="va">Amylase</span>
 <span class="va">elastase</span> <span class="op">&lt;-</span> <span class="va">eset</span><span class="op">$</span><span class="va">Elastase</span>
 <span class="va">pancreasScore</span> <span class="op">&lt;-</span> <span class="va">bioqcAbsLogRes</span><span class="op">[</span><span class="st">"Pancreas_Islets_NR_0.7_3"</span>,<span class="op">]</span>
@@ -184,7 +168,7 @@ BioQC scores (defined as abs(log10(p))) of the samples. K and P represent kidney
      xlab<span class="op">=</span><span class="st">"BioQC pancreas score"</span>, ylab<span class="op">=</span><span class="st">"Elastase"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="va">pancreasScore</span><span class="op">[</span><span class="fl">23</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>,<span class="va">elastase</span><span class="op">[</span><span class="fl">23</span><span class="op">:</span><span class="fl">25</span><span class="op">]</span>, <span class="fl">23</span><span class="op">:</span><span class="fl">25</span>, pos<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="bioqc_files/figure-html/rt_pcr_result-1.png" alt="Correlation between qRT-PCR results and BioQC pancreas score" width="768" style="display:block; margin: auto"><p class="caption">
+<img src="BioQC_files/figure-html/rt_pcr_result-1.png" alt="Correlation between qRT-PCR results and BioQC pancreas score" width="768" style="display:block; margin: auto"><p class="caption">
 Correlation between qRT-PCR results and BioQC pancreas score
 </p>
 </div>
@@ -193,12 +177,12 @@ Correlation between qRT-PCR results and BioQC pancreas score
 <h2 class="hasAnchor">
 <a href="#impact-of-sample-removal-on-differential-gene-expression-analysis" class="anchor"></a>Impact of sample removal on differential gene expression analysis</h2>
 <p>In this study, four mice of the <em>FVB/NJ</em> strain received nephrectomy operation and treatment of Losartan, an angiotensin II receptor antagonist drug, and four mice reveiced an sham operation and Losartan. Within the Nephrectomy+Losartan group, one sample (index 24) is possibly contaminated by pancreas. Suppose now we are interested in the differential gene expression between the conditions. We now run the analysis twice, once with and once without the contaminated sample, to study the impact of removing heterogenous samples detected by <em>BioQC</em>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma">limma</a></span><span class="op">)</span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">isNeph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/phenoData.html">pData</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>, <span class="va">Strain</span><span class="op">==</span><span class="st">"FVB/NJ"</span> <span class="op">&amp;</span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">isNeph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="fu">pData</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>, <span class="va">Strain</span><span class="op">==</span><span class="st">"FVB/NJ"</span> <span class="op">&amp;</span>
                  <span class="va">TREATMENTNAME</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Nephrectomy-Losartan"</span>, <span class="st">"Sham-Losartan"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">isContam</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/phenoData.html">pData</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>, <span class="va">INDIVIDUALNAME</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"BN7"</span>, <span class="st">"FNL8"</span>, <span class="st">"FN6"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">isContam</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="fu">pData</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>, <span class="va">INDIVIDUALNAME</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"BN7"</span>, <span class="st">"FNL8"</span>, <span class="st">"FN6"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">esetNephContam</span> <span class="op">&lt;-</span> <span class="va">eset</span><span class="op">[</span>,<span class="va">isNeph</span><span class="op">]</span>
 <span class="va">esetNephExclContam</span> <span class="op">&lt;-</span> <span class="va">eset</span><span class="op">[</span>, <span class="va">isNeph</span> <span class="op">&amp;</span> <span class="op">!</span><span class="va">isContam</span><span class="op">]</span>
 <span class="va">getDEG</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span> <span class="op">{</span>
@@ -206,7 +190,7 @@ Correlation between qRT-PCR results and BioQC pancreas score
   <span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="op">~</span><span class="va">group</span><span class="op">)</span>
   <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">design</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ShamLo"</span>, <span class="st">"NephLo"</span><span class="op">)</span>
   <span class="va">contrast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/makeContrasts.html">makeContrasts</a></span><span class="op">(</span>contrasts<span class="op">=</span><span class="st">"NephLo"</span>, levels<span class="op">=</span><span class="va">design</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/exprs.html">exprs</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/normalizebetweenarrays.html">normalizeBetweenArrays</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/exprs.html">exprs</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu">exprs</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/normalizebetweenarrays.html">normalizeBetweenArrays</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="fu">exprs</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
   <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html">lmFit</a></span><span class="op">(</span><span class="va">eset</span>, design<span class="op">=</span><span class="va">design</span><span class="op">)</span>
   <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/contrasts.fit.html">contrasts.fit</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">contrast</span><span class="op">)</span>
   <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/ebayes.html">eBayes</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
@@ -216,7 +200,7 @@ Correlation between qRT-PCR results and BioQC pancreas score
 
 <span class="va">esetNephContam.topTable</span> <span class="op">&lt;-</span> <span class="fu">getDEG</span><span class="op">(</span><span class="va">esetNephContam</span><span class="op">)</span>
 <span class="va">esetNephExclContam.topTable</span> <span class="op">&lt;-</span> <span class="fu">getDEG</span><span class="op">(</span><span class="va">esetNephExclContam</span><span class="op">)</span>
-<span class="va">esetFeats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureNames.html">featureNames</a></span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>
+<span class="va">esetFeats</span> <span class="op">&lt;-</span> <span class="fu">featureNames</span><span class="op">(</span><span class="va">eset</span><span class="op">)</span>
 <span class="va">esetNephTbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>feature<span class="op">=</span><span class="va">esetFeats</span>,
                           OrigGeneSymbol<span class="op">=</span><span class="va">esetNephContam.topTable</span><span class="op">[</span><span class="va">esetFeats</span>,<span class="op">]</span><span class="op">$</span><span class="va">OrigGeneSymbol</span>,
                           GeneSymbol<span class="op">=</span><span class="va">esetNephContam.topTable</span><span class="op">[</span><span class="va">esetFeats</span>,<span class="op">]</span><span class="op">$</span><span class="va">GeneSymbol</span>,
@@ -230,11 +214,11 @@ Correlation between qRT-PCR results and BioQC pancreas score
 <span class="va">isDiff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">esetNephTbl</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">Contam.logFC</span><span class="op">-</span><span class="va">ExclContam.logFC</span><span class="op">)</span><span class="op">&gt;=</span><span class="fl">2</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">esetNephTbl</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="va">Contam.logFC</span><span class="op">[</span><span class="va">isDiff</span><span class="op">]</span><span class="op">~</span><span class="va">ExclContam.logFC</span><span class="op">[</span><span class="va">isDiff</span><span class="op">]</span>, pch<span class="op">=</span><span class="fl">16</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="figure" style="text-align: center">
-<img src="bioqc_files/figure-html/deg-1.png" alt="Log2 fold change (logFC) values reported by *limma* with one contaminated sample included (y-axis) or excluded (x-axis). Genes strongly affected by the contamination are indicated by red dots." width="480" style="display:block; margin: auto"><p class="caption">
+<img src="BioQC_files/figure-html/deg-1.png" alt="Log2 fold change (logFC) values reported by *limma* with one contaminated sample included (y-axis) or excluded (x-axis). Genes strongly affected by the contamination are indicated by red dots." width="480" style="display:block; margin: auto"><p class="caption">
 Log2 fold change (logFC) values reported by <em>limma</em> with one contaminated sample included (y-axis) or excluded (x-axis). Genes strongly affected by the contamination are indicated by red dots.
 </p>
 </div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffTable</span> <span class="op">&lt;-</span> <span class="va">esetNephTbl</span><span class="op">[</span><span class="va">isDiff</span>,<span class="op">]</span>
 <span class="va">diffGenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">diffTable</span><span class="op">[</span>,<span class="st">"GeneSymbol"</span><span class="op">]</span><span class="op">)</span>
 <span class="va">pancreasSignature</span> <span class="op">&lt;-</span> <span class="va">gmt</span><span class="op">[[</span><span class="st">"Pancreas_Islets_NR_0.7_3"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">genes</span>
@@ -250,7 +234,7 @@ Log2 fold change (logFC) values reported by <em>limma</em> with one contaminated
 <div id="r-session-info" class="section level2">
 <h2 class="hasAnchor">
 <a href="#r-session-info" class="anchor"></a>R Session Info</h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## R Under development (unstable) (2020-12-04 r79554)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
