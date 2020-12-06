@@ -84,7 +84,7 @@
       <h1 data-toc-skip>BioQC Algorithm: Speeding up the Wilcoxon-Mann-Whitney Test</h1>
                         <h4 class="author">Gregor Sturm and Jitao David Zhang</h4>
             
-            <h4 class="date">2020-12-05</h4>
+            <h4 class="date">2020-12-06</h4>
       
       
       <div class="hidden name"><code>bioqc-efficiency.Rmd</code></div>
@@ -93,7 +93,6 @@
 
     
     
-<p>Supplementary Information for “Detect issue heterogenity in gene expression data with <a href="https://github.com/Accio/BioQC"><em>BioQC</em></a>” (<a href="mailto:jitao_david.zhang@roche.com">Jitao David Zhang</a>, Klas Hatje, Gregor Sturm, Clemens Broger, Martin Ebeling, Martine Burtin, Fabiola Terzi, Silvia Ines Pomposiello and <a href="laura.badi@roche.com">Laura Badi</a>)</p>
 <p>In this vignette, we explain the underlaying algorithmic details of our implementation of the Wilcoxon-Mann-Whitney test. The source code used to produce this document can be found in the github repository <a href="https://github.com/Accio/BioQC/vignettes">BioQC</a>.</p>
 <p><em>BioQC</em> is a R/Bioconductor package to detect tissue heterogeneity from high-throughput gene expression profiling data. It implements an efficient Wilcoxon-Mann-Whitney test, and offers tissue-specific gene signatures that are ready to use ‘out of the box’.</p>
 <div id="algorithmic-improvements" class="section level2">
@@ -110,10 +109,11 @@
 <p>Let <span class="math inline">\(W_{a,b}\)</span> be the approximative WMW test of two gene vectors <span class="math inline">\(a,b\)</span>, where <span class="math inline">\(a\)</span> is the gene set of interest, typically containing less than a few hundreds of genes, and <span class="math inline">\(b\)</span> is the set of all genes outside the gene set (<em>background genes</em>) typically containing <span class="math inline">\(&gt;10000\)</span> genes. In the context of BioQC, the gene sets are referred to as <em>tissue signatures</em>.</p>
 <p>Given an <span class="math inline">\(m \times n\)</span> input matrix of gene expression data with <span class="math inline">\(m\)</span> genes and <span class="math inline">\(n\)</span> samples <span class="math inline">\(s_1, \dots, s_n\)</span>, and <span class="math inline">\(k\)</span> gene sets <span class="math inline">\(d_1, \dots, d_k\)</span>, the WMW-test needs to be applied for each sample <span class="math inline">\(s_i, i \in 1..n\)</span> and each gene set <span class="math inline">\(d_j, j \in 1..k\)</span>. The runtime of the WMW-test is essentially determined by the sorting operation on the two input vectors. Using native R <code>wilcox.test</code>, the vectors <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are sorted individually for each gene set. However, in the context of gene set analysis, this is futile, as the (large) background set changes insignificantly in relation to the (small) gene set, when testing different gene sets on the same sample.</p>
 <p>Therefore, we approximate the WMW-test by extending <span class="math inline">\(b\)</span> to all genes in the sample, keeping the background unchanged when testing multiple gene sets. Like this, <span class="math inline">\(b\)</span> has to be sorted only once per sample. The individual gene sets still need to be sorted, which is not a major issue, as they are small in comparison to the set of background genes.</p>
-<img src="wmw-speedup.svg" style="display:block; margin: auto" alt="bioqc speedup"><p class="caption">
-<strong>Figure 1</strong>: BioQC speeds up the Wilcoxon-Mann-Whitney test by avoiding futile sorting operations on the same sample.
+<div class="figure" style="text-align: center">
+<img src="wmw-speedup.png" alt="BioQC speeds up the Wilcoxon-Mann-Whitney test by avoiding futile sorting operations on the same sample." width="500" style="display:block; margin: auto"><p class="caption">
+BioQC speeds up the Wilcoxon-Mann-Whitney test by avoiding futile sorting operations on the same sample.
 </p>
-<p> </p>
+</div>
 </div>
 <div id="time-benchmark" class="section level2">
 <h2 class="hasAnchor">
